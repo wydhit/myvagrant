@@ -1,8 +1,8 @@
 ---
 provider: virtualbox
-box: wyd/ubuntu103 #boxname
+box: wyd/ubuntu1604 #boxname
 version: ">= 1.0.0" #box版本
-name: wydUbuntu8 #virtualbox中的虚拟主机名称
+name: wydUbuntu1604 #virtualbox中的虚拟主机名称
 hostname: wydUbuntu #虚拟主机hostname
 username: ubuntu #虚拟主机登录用户名
 ip: "192.168.10.10"
@@ -16,26 +16,41 @@ keys:
 #    - ~/.ssh/id_rsa
     - ../../id_rsa
 
+firstSh: first.sh
 afterSh: after.sh
 
-defaultPhpVersion: php7.0  #默认php版本 包括命令行和php-fpm 通过 /usr/local/bin 中的php phpize 等软连接实现
-
+#defaultPhpVersion: php7.0  #默认php版本 包括命令行和php-fpm 通过 /usr/local/bin 中的php phpize 等软连接实现
+dataDir: ./../../data
 folders:
-    - map: D:\vagrant\data
-      to: /data
-sites:
-    - domain: php70.vg
-      phpversion: "7.0"
-    - domain: php56.vg
-      type: common
-      webpath: /data/wwwroot/php56.vg
-      logpath: /data/wwwlogs/php56.vg.log
-      phpversion: "5.6"
-    - domain: php72.vg
-      type: common
-      webpath: /data/wwwroot/php72.vg
-      logpath: /data/wwwlogs/php72.vg.log
-      phpversion: "7.2"
+    - map: "{{dataDir}}/wwwroot"
+      to: /data/wwwroot
+    - map: "{{dataDir}}/wwwlogs"
+      to: /data/wwwlogs
+#nginx vhost
+    - map: ./conf/nginx/vhost
+      to: /usr/local/nginx/conf/vhost
+#php etc
+    - map: ./conf/php/php5.6/
+      to: /usr/local/php5.6/etc/
+    - map: ./conf/php/php7.0/
+      to: /usr/local/php7.0/etc/
+    - map: ./conf/php/php7.1/
+      to: /usr/local/php7.1/etc/
+    - map: ./conf/php/php7.2/
+      to: /usr/local/php7.2/etc/
+#sites:
+#    - domain: php70.vg
+#      phpversion: "7.0"
+#    - domain: php56.vg
+#      type: common
+#      webpath: /data/wwwroot/php56.vg
+#      logpath: /data/wwwlogs/php56.vg.log
+#      phpversion: "5.6"
+#    - domain: php72.vg
+#      type: common
+#      webpath: /data/wwwroot/php72.vg
+#      logpath: /data/wwwlogs/php72.vg.log
+#      phpversion: "7.2"
 #databases:
 #    - homestead
 # ports:

@@ -1,0 +1,38 @@
+server
+    {
+        listen 80;
+        server_name  $$SERVER_NAME$$;
+        index index.html index.htm index.php default.html default.htm default.php;
+        root  /data/wwwroot/$$SERVER_NAME$$;
+        #日志
+        access_log  /data/wwwlogs/$$SERVER_NAME$$.access.log;
+        error_log  /data/wwwlogs/$$SERVER_NAME$$.error.log;
+        #error_page   404   /404.html; ###
+
+        #php模块 四个选一个或者自定义如何启用php
+        #include enable-php5.6.conf;
+        include enable-php7.0.conf;
+        #include enable-php7.1.conf;
+        #include enable-php7.2.conf;
+
+        #location / {
+        #    try_files $uri $uri/ /index.php?$query_string;
+        #}
+
+
+        location ~ .*\.(gif|jpg|jpeg|png|bmp|swf)$
+        {
+            expires      30d;
+        }
+        location ~ .*\.(js|css)?$
+        {
+            expires      12h;
+        }
+        location ~ /.well-known {
+            allow all;
+        }
+        location ~ /\.
+        {
+            deny all;
+        }
+    }

@@ -1,0 +1,209 @@
+
+
+=begin
+        # Configure All Of The Server Environment Variables
+        #config.vm.provision "shell" do |s|
+        #    s.name = "Clear Variables"
+        #    s.path = scriptDir + "/clear-variables.sh"
+        #end
+=end
+
+=begin
+        if settings.has_key?("variables")
+            settings["variables"].each do |var|
+                config.vm.provision "shell" do |s|
+                    s.inline = "echo \"\nenv[$1] = '$2'\" >> /etc/php/5.6/fpm/pool.d/www.conf"
+                    s.args = [var["key"], var["value"]]
+                end
+
+                config.vm.provision "shell" do |s|
+                    s.inline = "echo \"\nenv[$1] = '$2'\" >> /etc/php/7.0/fpm/pool.d/www.conf"
+                    s.args = [var["key"], var["value"]]
+                end
+
+                config.vm.provision "shell" do |s|
+                    s.inline = "echo \"\nenv[$1] = '$2'\" >> /etc/php/7.1/fpm/pool.d/www.conf"
+                    s.args = [var["key"], var["value"]]
+                end
+
+                config.vm.provision "shell" do |s|
+                    s.inline = "echo \"\nenv[$1] = '$2'\" >> /etc/php/7.2/fpm/pool.d/www.conf"
+                    s.args = [var["key"], var["value"]]
+                end
+
+                config.vm.provision "shell" do |s|
+                    s.inline = "echo \"\n# Set Homestead Environment Variable\nexport $1=$2\" >> /home/vagrant/.profile"
+                    s.args = [var["key"], var["value"]]
+                end
+            end
+
+            config.vm.provision "shell" do |s|
+                s.inline = "service php5.6-fpm restart; service php7.0-fpm restart; service php7.1-fpm restart; service php7.2-fpm restart;"
+            end
+        end
+=end
+
+=begin
+        config.vm.provision "shell" do |s|
+            s.name = "Restarting Cron"
+            s.inline = "sudo service cron restart"
+        end
+=end
+
+=begin
+        config.vm.provision "shell" do |s|
+            s.name = "Restarting Nginx"
+            s.inline = "sudo service nginx restart; sudo service php5.6-fpm restart; sudo service php7.0-fpm restart; sudo service php7.1-fpm restart; sudo service php7.2-fpm restart"
+        end
+=end
+
+=begin
+        # Install MariaDB If Necessary
+        if settings.has_key?("mariadb") && settings["mariadb"]
+            config.vm.provision "shell" do |s|
+                s.path = scriptDir + "/install-maria.sh"
+            end
+        end
+=end
+
+=begin
+        # Install MongoDB If Necessary
+        if settings.has_key?("mongodb") && settings["mongodb"]
+            config.vm.provision "shell" do |s|
+                s.path = scriptDir + "/install-mongo.sh"
+            end
+        end
+=end
+
+=begin
+        # Install CouchDB If Necessary
+        if settings.has_key?("couchdb") && settings["couchdb"]
+            config.vm.provision "shell" do |s|
+                s.path = scriptDir + "/install-couch.sh"
+            end
+        end
+=end
+
+=begin
+        # Install Elasticsearch If Necessary
+        if settings.has_key?("elasticsearch") && settings["elasticsearch"]
+            config.vm.provision "shell" do |s|
+                s.name = "Installing Elasticsearch"
+                if settings["elasticsearch"] == 6
+                    s.path = scriptDir + "/install-elasticsearch6.sh"
+                else
+                    s.path = scriptDir + "/install-elasticsearch5.sh"
+                end
+            end
+        end
+=end
+
+=begin
+        # Configure All Of The Configured Databases
+        if settings.has_key?("databases")
+            settings["databases"].each do |db|
+                config.vm.provision "shell" do |s|
+                    s.name = "Creating MySQL Database: " + db
+                    s.path = scriptDir + "/create-mysql.sh"
+                    s.args = [db]
+                end
+
+                config.vm.provision "shell" do |s|
+                    s.name = "Creating Postgres Database: " + db
+                    s.path = scriptDir + "/create-postgres.sh"
+                    s.args = [db]
+                end
+
+                if settings.has_key?("mongodb") && settings["mongodb"]
+                    config.vm.provision "shell" do |s|
+                        s.name = "Creating Mongo Database: " + db
+                        s.path = scriptDir + "/create-mongo.sh"
+                        s.args = [db]
+                    end
+                end
+
+                if settings.has_key?("couchdb") && settings["couchdb"]
+                    config.vm.provision "shell" do |s|
+                        s.name = "Creating Couch Database: " + db
+                        s.path = scriptDir + "/create-couch.sh"
+                        s.args = [db]
+                    end
+                end
+            end
+        end
+=end
+
+=begin
+        # Update Composer On Every Provision
+        config.vm.provision "shell" do |s|
+            s.name = "Update Composer"
+            s.inline = "sudo /usr/local/bin/composer self-update --no-progress && sudo chown -R vagrant:vagrant /home/vagrant/.composer/"
+            s.privileged = false
+        end
+=end
+
+=begin
+        # Configure Blackfire.io
+        if settings.has_key?("blackfire")
+            config.vm.provision "shell" do |s|
+                s.path = scriptDir + "/blackfire.sh"
+                s.args = [
+                    settings["blackfire"][0]["id"],
+                    settings["blackfire"][0]["token"],
+                    settings["blackfire"][0]["client-id"],
+                    settings["blackfire"][0]["client-token"]
+                ]
+            end
+        end
+=end
+
+=begin
+        # Add config file for ngrok
+        config.vm.provision "shell" do |s|
+            s.path = scriptDir + "/create-ngrok.sh"
+            s.args = [settings["ip"]]
+            s.privileged = false
+        end
+=end
+
+
+
+    # #更改php版本
+    # defaultPhpVersion = settings["defaultPhpVersion"] ||= "php5.6"
+    # config.vm.provision "shell" do |s|
+    #   s.name = "更改php版本" + defaultPhpVersion
+    #   s.path = scriptDir + "/changePhpDefaultVersion.sh"
+    #   s.args = [defaultPhpVersion]
+    # end
+    # if settings.include? 'copy'
+    #   settings["copy"].each do |file|
+    #     config.vm.provision "file" do |f|
+    #       f.source = File.expand_path(file["from"])
+    #       f.destination = file["to"].chomp('/') + "/" + file["from"].split('/').last
+    #     end
+    #   end
+    # end
+
+
+    #配置站点
+    # if settings.include? 'sites'
+    #   config.vm.provision "shell" do |s|
+    #     s.inline = "echo '清理nginx站点配置' && sudo rm -rf /usr/local/nginx/conf/vhost/*"
+    #   end
+    #   settings["sites"].each do |site|
+    #     if site.include? 'domain' then
+    #       if site["domain"].to_s.length > 0 then #必须配置domain 不然就忽略这条配置
+    #         domain = site["domain"]
+    #         webpath = site["webpath"] ||= "/data/wwwroot/" + domain
+    #         logpath = site["logpath"] ||= "/data/wwwlogs/" + domain + ".log"
+    #         phpversion = site["phpversion"] ||= "5.6"
+    #         type = site["type"] ||= "common"
+    #         config.vm.provision "shell" do |s|
+    #           s.name = "创建站点" + site["domain"]
+    #           s.path = scriptDir + "/sites-" + type + ".sh"
+    #           s.args = [domain, webpath, logpath, phpversion]
+    #         end
+    #       end
+    #     end
+    #   end
+    # end
